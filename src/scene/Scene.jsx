@@ -1,13 +1,23 @@
-import { useLoader } from "@react-three/fiber";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { useGLTF } from "@react-three/drei";
+import { Environment, useGLTF } from "@react-three/drei";
+import { Suspense, useEffect } from "react";
 
 export default function Scene() {
   const scene = useGLTF("./scene/scene.glb");
 
+  useEffect(() => {
+    scene.scene.traverse((child) => {
+      if (child.isMesh) {
+        child.material.envMapIntensity = 2;
+      }
+    });
+  }, [scene]);
+
   return (
     <>
-      <primitive object={scene.scene} />
+      {/* scene */}
+      <Suspense>
+        <primitive object={scene.scene} />
+      </Suspense>
     </>
   );
 }

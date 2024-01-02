@@ -9,10 +9,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Canvas
       gl={{
-        antialias: true,
-        alpha: true,
+        powerPreference: "high-performance",
+        antialias: false,
+        stencil: false,
+        depth: false,
         toneMapping: THREE.ACESFilmicToneMapping,
       }}
+      dpr={[1, 2]}
     >
       <App />
     </Canvas>
