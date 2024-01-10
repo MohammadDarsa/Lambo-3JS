@@ -27,7 +27,13 @@ function App() {
       //create a camera as default camera
       <PerspectiveCamera fov={45} position={[0, 1, -4]} makeDefault />
       {/* orbit controls */}
-      <OrbitControls target={[0, 0.25, 0]} maxDistance={10} minDistance={5} />
+      <OrbitControls
+        target={[0, 0.25, 0]}
+        maxDistance={10}
+        minDistance={5}
+        maxPolarAngle={Math.PI * 0.45}
+        minPolarAngle={Math.PI * 0.1}
+      />
       {/* scene */}
       <Scene />
       {/* spot light with helper */}
