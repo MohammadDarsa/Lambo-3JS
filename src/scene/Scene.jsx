@@ -1,23 +1,17 @@
-import { Environment, useGLTF } from "@react-three/drei";
-import { Suspense, useEffect } from "react";
+import { useGLTF } from "@react-three/drei";
+import { Suspense, forwardRef } from "react";
 
-export default function Scene() {
+const Scene = forwardRef(function Scene(props,ref) {
   const scene = useGLTF("./scene/scene.glb");
-
-  useEffect(() => {
-    scene.scene.traverse((child) => {
-      if (child.isMesh) {
-        child.material.envMapIntensity = 2;
-      }
-    });
-  }, [scene]);
 
   return (
     <>
       {/* scene */}
       <Suspense>
-        <primitive object={scene.scene} />
+        <primitive ref={ref} object={scene.scene} />
       </Suspense>
     </>
   );
-}
+});
+
+export default Scene;

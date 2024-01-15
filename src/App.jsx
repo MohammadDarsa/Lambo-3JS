@@ -9,22 +9,38 @@ import {
 } from "@react-three/postprocessing";
 import {
   Environment,
-  Loader,
   OrbitControls,
   PerspectiveCamera,
 } from "@react-three/drei";
-import { Suspense, useRef } from "react";
+import { useRef, useEffect } from "react";
 import Scene from "./scene/Scene";
+import { Color } from "three";
 
 function App() {
-  const spotLightRef = useRef();
+  const sceneRef = useRef();
+
+  useEffect(() => {
+    const scene = sceneRef.current;
+    let car = scene.getObjectByName("c8");
+    for (let index in car.children) {
+      let child = car.children[index];
+      if (child.isMesh && child.material.emissiveIntensity > 1) {
+        child.material.emissive = new Color(0x00ff00);
+      }
+    }
+    scene.traverse((child) => {
+      if (child.isMesh) {
+        child.material.envMapIntensity = 2;
+      }
+    });
+  }, [sceneRef]);
 
   return (
     <>
       {/* environment */}
       <Environment files="./moonless_golf_2k.hdr" />
       <color attach="background" args={["#000"]} />
-      //create a camera as default camera
+      {/* create a camera as default camera */}
       <PerspectiveCamera fov={45} position={[0, 1, -4]} makeDefault />
       {/* orbit controls */}
       <OrbitControls
@@ -35,10 +51,9 @@ function App() {
         minPolarAngle={Math.PI * 0.1}
       />
       {/* scene */}
-      <Scene />
+      <Scene ref={sceneRef}/>
       {/* spot light with helper */}
       <spotLight
-        ref={spotLightRef}
         position={[0, 10, 0]}
         angle={40}
         intensity={100}
