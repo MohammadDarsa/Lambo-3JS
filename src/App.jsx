@@ -18,13 +18,29 @@ import Lambo from "./lambo/Lambo";
 import { useEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { lerp } from "three/src/math/MathUtils";
+import { useThree } from "@react-three/fiber";
+import * as THREE from "three";
 
 function App() {
   const [cameraPosition, setCameraPosition] = useState([0, 1, -4]);
 
   const brightnessRef = useRef({ brightness: 0 });
+  const leftLightRef = useRef();
+  const rightLightRef = useRef();
+
+  const scene = useThree((state) => state.scene);
 
   useEffect(() => {
+    const leftTargetObject = new THREE.Object3D();
+    leftTargetObject.position.set(-0.75, 0.75, -5);
+    scene.add(leftTargetObject);
+    leftLightRef.current.target = leftTargetObject;
+
+    const rightTargetObject = new THREE.Object3D();
+    rightTargetObject.position.set(0.75, 0.75, -5);
+    scene.add(rightTargetObject);
+    rightLightRef.current.target = rightTargetObject;
+
     let interval = setInterval(() => {
       brightnessRef.current.brightness = lerp(
         brightnessRef.current.brightness,
@@ -63,6 +79,20 @@ function App() {
         intensity={100}
         penumbra={1}
       />
+      <spotLight
+        ref={leftLightRef}
+        position={[-0.75, 0.75, -1.5]}
+        angle={0.5}
+        intensity={100}
+        penumbra={1}
+      />
+      <spotLight
+        ref={rightLightRef}
+        position={[0.75, 0.75, -1.5]}
+        angle={0.5}
+        intensity={100}
+        penumbra={1}
+      />
       {/* effects */}
       <EffectComposer multisampling={0}>
         <FXAA />
@@ -72,11 +102,11 @@ function App() {
           bokehScale={1}
           height={480}
         />
-        <Noise opacity={0.02} />
+        <Noise opacity={0.015} />
         <Vignette eskil={false} offset={0.2} darkness={0.9} />
         <BrightnessContrast
           ref={brightnessRef}
-          brightness={-10} // brightness. min: -1, max: 1
+          brightness={-30} // brightness. min: -1, max: 1
           contrast={0.1} // contrast: min -1, max: 1
         />
       </EffectComposer>
