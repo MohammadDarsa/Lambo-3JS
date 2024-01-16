@@ -6,6 +6,7 @@ import {
   FXAA,
   Noise,
   Vignette,
+  Bloom,
 } from "@react-three/postprocessing";
 import {
   Environment,
@@ -14,15 +15,19 @@ import {
 } from "@react-three/drei";
 import Scene from "./scene/Scene";
 import Lambo from "./lambo/Lambo";
+import { useEffect, useRef, useState } from "react";
+import { useFrame } from "@react-three/fiber";
 
 function App() {
+  const [cameraPosition, setCameraPosition] = useState([0, 1, -4]);
+
   return (
     <>
       {/* environment */}
       <Environment files="./moonless_golf_2k.hdr" />
       <color attach="background" args={["#000"]} />
       {/* create a camera as default camera */}
-      <PerspectiveCamera fov={45} position={[0, 1, -4]} makeDefault />
+      <PerspectiveCamera fov={45} position={cameraPosition} makeDefault />
       {/* orbit controls */}
       <OrbitControls
         target={[0, 0.25, 0]}
@@ -51,7 +56,7 @@ function App() {
           height={480}
         />
         <Noise opacity={0.02} />
-        <Vignette eskil={false} offset={0.1} darkness={1.1} />
+        <Vignette eskil={false} offset={0.2} darkness={0.9} />
         <BrightnessContrast
           brightness={0} // brightness. min: -1, max: 1
           contrast={0.1} // contrast: min -1, max: 1
