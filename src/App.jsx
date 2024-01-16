@@ -29,9 +29,8 @@ function App() {
       brightnessRef.current.brightness = lerp(
         brightnessRef.current.brightness,
         0,
-        0.2
+        0.1
       );
-      console.log(brightnessRef);
     }, 50);
     setInterval(() => {
       clearInterval(interval);
@@ -77,7 +76,7 @@ function App() {
         <Vignette eskil={false} offset={0.2} darkness={0.9} />
         <BrightnessContrast
           ref={brightnessRef}
-          brightness={-100} // brightness. min: -1, max: 1
+          brightness={-10} // brightness. min: -1, max: 1
           contrast={0.1} // contrast: min -1, max: 1
         />
       </EffectComposer>

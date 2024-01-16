@@ -41,8 +41,8 @@ export default function Lambo() {
   rightDoorClose.setLoop(THREE.LoopOnce, 1);
 
   useEffect(() => {
-    leftFrontWheelTilt.play();
-    rightFrontWheelTilt.play();
+    // leftFrontWheelTilt.play();
+    // rightFrontWheelTilt.play();
     leftDoorClose.play();
     rightDoorClose.play();
   }, []);
