@@ -17,9 +17,27 @@ import Scene from "./scene/Scene";
 import Lambo from "./lambo/Lambo";
 import { useEffect, useRef, useState } from "react";
 import { useFrame } from "@react-three/fiber";
+import { lerp } from "three/src/math/MathUtils";
 
 function App() {
   const [cameraPosition, setCameraPosition] = useState([0, 1, -4]);
+
+  const brightnessRef = useRef({ brightness: 0 });
+
+  useEffect(() => {
+    let interval = setInterval(() => {
+      brightnessRef.current.brightness = lerp(
+        brightnessRef.current.brightness,
+        0,
+        0.2
+      );
+      console.log(brightnessRef);
+    }, 50);
+    setInterval(() => {
+      clearInterval(interval);
+      brightnessRef.current.brightness = 0;
+    }, 7000);
+  });
 
   return (
     <>
@@ -58,7 +76,8 @@ function App() {
         <Noise opacity={0.02} />
         <Vignette eskil={false} offset={0.2} darkness={0.9} />
         <BrightnessContrast
-          brightness={0} // brightness. min: -1, max: 1
+          ref={brightnessRef}
+          brightness={-100} // brightness. min: -1, max: 1
           contrast={0.1} // contrast: min -1, max: 1
         />
       </EffectComposer>
