@@ -8,7 +8,7 @@ import { Html, useProgress } from "@react-three/drei";
 import StartedContext from "./context/StartedContext";
 import StartedContextProvider from "./context/StartedContextProvider.jsx";
 
-const audio = new Audio("./sounds/lamboroar.mp3");
+const audio = new Audio("./sounds/lamboroar.ogg");
 
 function Loader() {
   const { progress } = useProgress();
@@ -22,10 +22,13 @@ function Loader() {
     <>
       <Html fullscreen>
         <div className="black-screen" hidden={startedContext}>
-          <button onClick={() => updateStartedContext(true)}>
+          <button 
+            className="full-screen"
+            hidden={progress < 100}
+            onClick={() => updateStartedContext(true)}>
             Click to start
           </button>
-          <div className="loading-bar">
+          <div hidden={progress >= 100} className="loading-bar">
             <div
               className="loading-bar-inner-1"
               style={{ transform: `scaleX(${progress / 100.0})` }}
@@ -50,10 +53,10 @@ ReactDOM.createRoot(document.getElementById("root")).render(
       dpr={[1, 2]}
     >
       <StartedContextProvider>
-        <Suspense fallback={null}>
+        <Loader />
+        <Suspense>
           <App />
         </Suspense>
-        <Loader />
       </StartedContextProvider>
     </Canvas>
   </React.StrictMode>
