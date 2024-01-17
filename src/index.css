@@ -10,14 +10,15 @@ body,
   background: black;
 }
 
-.black-screen {
-  background-color: black;
-  position: absolute;
-  top: 0;
-  left: 0;
+.full-screen {
+  background-color: transparent;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
   width: 100vw;
   height: 100vh;
-  color: black;
+  color: transparent;
+  transform: none !important;
 }
 
 .loading-bar {
@@ -40,13 +41,16 @@ body,
   height: 2px;
 }
 
-.full-screen {
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
+.black-screen {
+  left: 0 !important;
+  right: 0;
+  top: 0 !important;
+  bottom: 0;
+  /* width: 100vw;
+  height: 100vh; */
   font-size: 10vh;
   background-color: black;
   color:gray;
   border: 0;
+  position: absolute;
 }

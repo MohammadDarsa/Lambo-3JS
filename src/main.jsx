@@ -20,10 +20,10 @@ function Loader() {
 
   return (
     <>
-      <Html fullscreen>
-        <div className="black-screen" hidden={startedContext}>
+      <Html fullscreen wrapperClass="full-screen" className="full-screen">
+        <div className="full-screen" hidden={startedContext}>
           <button 
-            className="full-screen"
+            className="black-screen"
             hidden={progress < 100}
             onClick={() => updateStartedContext(true)}>
             Click to start
