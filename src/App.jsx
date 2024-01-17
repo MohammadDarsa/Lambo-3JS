@@ -15,14 +15,16 @@ import {
 } from "@react-three/drei";
 import Scene from "./scene/Scene";
 import Lambo from "./lambo/Lambo";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useContext } from "react";
 import { useFrame } from "@react-three/fiber";
 import { lerp } from "three/src/math/MathUtils";
 import { useThree } from "@react-three/fiber";
 import * as THREE from "three";
+import StartedContext from "./context/StartedContext";
 
 function App() {
   const [cameraPosition, setCameraPosition] = useState([0, 1, -4]);
+  const { startedContext } = useContext(StartedContext);
 
   const brightnessRef = useRef({ brightness: 0 });
   const leftLightRef = useRef();
@@ -41,17 +43,19 @@ function App() {
     scene.add(rightTargetObject);
     rightLightRef.current.target = rightTargetObject;
 
-    let interval = setInterval(() => {
-      brightnessRef.current.brightness = lerp(
-        brightnessRef.current.brightness,
-        0,
-        0.1
-      );
-    }, 50);
-    setInterval(() => {
-      clearInterval(interval);
-      brightnessRef.current.brightness = 0;
-    }, 7000);
+    if (startedContext) {
+      let interval = setInterval(() => {
+        brightnessRef.current.brightness = lerp(
+          brightnessRef.current.brightness,
+          0,
+          0.1
+        );
+      }, 50);
+      setInterval(() => {
+        clearInterval(interval);
+        brightnessRef.current.brightness = 0;
+      }, 7000);
+    }
   });
 
   return (
