@@ -13,114 +13,122 @@ export default function Lambo() {
     loader.setDRACOLoader(dracoLoader);
   });
 
-  const [isDoorOpen, setIsDoorOpen] = useState(false);
+  const leftDoorHandleOpen = model.scene.getObjectByName("left_door_open");
+  const leftDoorHandleClosed = model.scene.getObjectByName("left_door_close");
 
   const animations = useAnimations(model.animations, model.scene);
   const planeRef = useRef();
 
-  console.log(animations);
+  const [leftDoorOpenState, setLeftDoorOpenState] = useState(false);
+  const [leftDoorCloseState, setLeftDoorCloseState] = useState(false);
+
+  const leftDoorClosedIdle = animations.actions.left_door_closed_idle;
+
+  const leftDoorOpenIdle = animations.actions.left_door_open_idle;
 
   const leftDoorClose = animations.actions.left_door_close;
   leftDoorClose.setLoop(THREE.LoopOnce, 1);
-  leftDoorClose.clampWhenFinished = true;
+  leftDoorClose.getMixer().addEventListener("finished", function (e) {
+    console.log("open state1", leftDoorOpenState);
+    console.log("close state1", leftDoorCloseState);
+    if (!leftDoorOpenState && leftDoorCloseState) {
+      console.log("left door close");
+      leftDoorClosedIdle.play();
+      planeRef.current.scale.set(1, 1, 1);
+      planeRef.current.position.set(
+        leftDoorHandleClosed.position.x,
+        leftDoorHandleClosed.position.y,
+        leftDoorHandleClosed.position.z
+      );
+      setLeftDoorCloseState(false);
+      setLeftDoorOpenState(false);
+    }
+  });
 
-  const rightDoorClose = animations.actions.right_door_close;
-  rightDoorClose.setLoop(THREE.LoopOnce, 1);
-  rightDoorClose.clampWhenFinished = true;
+  const leftDoorOpen = animations.actions.left_door_open;
+  leftDoorOpen.setLoop(THREE.LoopOnce, 1);
+  leftDoorOpen.getMixer().addEventListener("finished", function (e) {
+    console.log("open state2", leftDoorOpenState);
+    console.log("close state2", leftDoorCloseState);
+    if (leftDoorOpenState && !leftDoorCloseState) {
+      console.log("left door open");
+      leftDoorOpenIdle.play();
+      planeRef.current.scale.set(1, 1, 1);
+      planeRef.current.position.set(
+        leftDoorHandleOpen.position.x,
+        leftDoorHandleOpen.position.y,
+        leftDoorHandleOpen.position.z
+      );
+      setLeftDoorCloseState(false);
+      setLeftDoorOpenState(false);
+    }
+  });
 
-  const leftFrontWheelTilt = animations.actions.left_front_wheel_tilt;
-  leftFrontWheelTilt.setLoop(THREE.LoopOnce, 1);
-  leftFrontWheelTilt.clampWhenFinished = true;
-  leftFrontWheelTilt.timeScale = 0.5;
+  const onDoorClick = () => {
+    setLeftDoorCloseState(false);
+    setLeftDoorOpenState(false);
+    if (leftDoorClosedIdle.isRunning()) {
+      leftDoorClosedIdle.paused = true;
+      planeRef.current.scale.set(0, 0, 0);
+      leftDoorOpen.play();
+      setLeftDoorOpenState(true);
+      setLeftDoorCloseState(false);
+    } else if (leftDoorOpenIdle.isRunning()) {
+      leftDoorOpenIdle.paused = true;
+      planeRef.current.scale.set(0, 0, 0);
+      leftDoorClose.play();
+      setLeftDoorOpenState(false);
+      setLeftDoorCloseState(true);
+    }
+  };
 
-  const rightFrontWheelTilt = animations.actions.right_front_wheel_tilt;
-  rightFrontWheelTilt.setLoop(THREE.LoopOnce, 1);
-  rightFrontWheelTilt.clampWhenFinished = true;
-  rightFrontWheelTilt.timeScale = 0.5;
+  // const onPointerEnter = (event) => {
+  //   let interval = setInterval(() => {
+  //     planeRef.current.scale.set(
+  //       lerp(planeRef.current.scale.x, 1.2, 0.5),
+  //       lerp(planeRef.current.scale.y, 1.2, 0.5),
+  //       lerp(planeRef.current.scale.y, 1.2, 0.5)
+  //     );
+  //   }, 50);
 
-  rightDoorClose.setLoop(THREE.LoopOnce, 1);
+  //   setTimeout(() => {
+  //     clearInterval(interval);
+  //     planeRef.current.scale.set(1.2, 1.2, 1.2);
+  //   }, 100);
+  // };
+
+  // const onPointerLeave = (event) => {
+  //   let interval = setInterval(() => {
+  //     planeRef.current.scale.set(
+  //       lerp(planeRef.current.scale.x, 1, 0.5),
+  //       lerp(planeRef.current.scale.y, 1, 0.5),
+  //       lerp(planeRef.current.scale.y, 1, 0.5)
+  //     );
+  //   }, 50);
+
+  //   setTimeout(() => {
+  //     clearInterval(interval);
+  //     planeRef.current.scale.set(1, 1, 1);
+  //   }, 500);
+  // };
 
   useEffect(() => {
-    // leftFrontWheelTilt.play();
-    // rightFrontWheelTilt.play();
-    leftDoorClose.play();
-    rightDoorClose.play();
+    leftDoorClosedIdle.play();
   }, []);
 
   useFrame((state, delta) => {
     planeRef.current.lookAt(state.camera.position);
   });
 
-  const leftDoorOpen = animations.actions.left_door_open;
-  leftDoorOpen.setLoop(THREE.LoopOnce, 1);
-  leftDoorOpen.clampWhenFinished = true;
-
-  const rightDoorOpen = animations.actions.right_door_open;
-  rightDoorOpen.setLoop(THREE.LoopOnce, 1);
-  rightDoorOpen.clampWhenFinished = true;
-
-  const onDoorClick = () => {
-    console.log(isDoorOpen);
-    if (leftDoorClose.isRunning() || leftDoorOpen.isRunning()) return;
-
-    if (isDoorOpen) {
-      leftDoorOpen.stop();
-      rightDoorOpen.stop();
-      leftDoorClose.reset();
-      rightDoorClose.reset();
-      leftDoorClose.play();
-      rightDoorClose.play();
-      setIsDoorOpen(false);
-      return;
-    }
-    leftDoorClose.stop();
-    rightDoorClose.stop();
-    leftDoorOpen.reset();
-    rightDoorOpen.reset();
-    leftDoorOpen.play();
-    rightDoorOpen.play();
-    setIsDoorOpen(true);
-  };
-
-  const onPointerEnter = (event) => {
-    let interval = setInterval(() => {
-      planeRef.current.scale.set(
-        lerp(planeRef.current.scale.x, 1.2, 0.5),
-        lerp(planeRef.current.scale.y, 1.2, 0.5),
-        lerp(planeRef.current.scale.y, 1.2, 0.5)
-      );
-    }, 50);
-
-    setTimeout(() => {
-      clearInterval(interval);
-      planeRef.current.scale.set(1.2, 1.2, 1.2);
-    }, 100);
-  };
-
-  const onPointerLeave = (event) => {
-    let interval = setInterval(() => {
-      planeRef.current.scale.set(
-        lerp(planeRef.current.scale.x, 1, 0.5),
-        lerp(planeRef.current.scale.y, 1, 0.5),
-        lerp(planeRef.current.scale.y, 1, 0.5)
-      );
-    }, 50);
-
-    setTimeout(() => {
-      clearInterval(interval);
-      planeRef.current.scale.set(1, 1, 1);
-    }, 500);
-  };
-
   return (
     <>
       {/* circle for the door to open */}
       <mesh
         ref={planeRef}
-        position={[-1, 1, 0.25]}
+        position={leftDoorHandleClosed.position}
         onClick={onDoorClick}
-        onPointerEnter={onPointerEnter}
-        onPointerLeave={onPointerLeave}
+        // onPointerEnter={onPointerEnter}
+        // onPointerLeave={onPointerLeave}
       >
         <planeGeometry args={[1, 1]} />
         <meshBasicMaterial color="red" />
@@ -131,9 +139,3 @@ export default function Lambo() {
     </>
   );
 }
-
-//       planeRef.current.scale.set(
-//   lerp(planeRef.current.scale.x, 1.2, 0.5),
-//   lerp(planeRef.current.scale.y, 1.2, 0.5),
-//   lerp(planeRef.current.scale.y, 1.2, 0.5)
-// );
