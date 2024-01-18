@@ -17,10 +17,8 @@ export default function Lambo() {
   const leftDoorHandleClosed = model.scene.getObjectByName("left_door_close");
 
   const animations = useAnimations(model.animations, model.scene);
+  const mixer = animations.mixer;
   const planeRef = useRef();
-
-  const [leftDoorOpenState, setLeftDoorOpenState] = useState(false);
-  const [leftDoorCloseState, setLeftDoorCloseState] = useState(false);
 
   const leftDoorClosedIdle = animations.actions.left_door_closed_idle;
 
@@ -28,30 +26,14 @@ export default function Lambo() {
 
   const leftDoorClose = animations.actions.left_door_close;
   leftDoorClose.setLoop(THREE.LoopOnce, 1);
-  leftDoorClose.getMixer().addEventListener("finished", function (e) {
-    console.log("open state1", leftDoorOpenState);
-    console.log("close state1", leftDoorCloseState);
-    if (!leftDoorOpenState && leftDoorCloseState) {
-      console.log("left door close");
-      leftDoorClosedIdle.play();
-      planeRef.current.scale.set(1, 1, 1);
-      planeRef.current.position.set(
-        leftDoorHandleClosed.position.x,
-        leftDoorHandleClosed.position.y,
-        leftDoorHandleClosed.position.z
-      );
-      setLeftDoorCloseState(false);
-      setLeftDoorOpenState(false);
-    }
-  });
 
   const leftDoorOpen = animations.actions.left_door_open;
   leftDoorOpen.setLoop(THREE.LoopOnce, 1);
-  leftDoorOpen.getMixer().addEventListener("finished", function (e) {
-    console.log("open state2", leftDoorOpenState);
-    console.log("close state2", leftDoorCloseState);
-    if (leftDoorOpenState && !leftDoorCloseState) {
-      console.log("left door open");
+
+  mixer.addEventListener("finished", function (e) {
+    console.log(e.action.getClip().name);
+    if (e.action.getClip().name === "left_door_open") {
+      leftDoorOpen.stop();
       leftDoorOpenIdle.play();
       planeRef.current.scale.set(1, 1, 1);
       planeRef.current.position.set(
@@ -59,58 +41,29 @@ export default function Lambo() {
         leftDoorHandleOpen.position.y,
         leftDoorHandleOpen.position.z
       );
-      setLeftDoorCloseState(false);
-      setLeftDoorOpenState(false);
+    } else if (e.action.getClip().name === "left_door_close") {
+      leftDoorClose.stop();
+      leftDoorClosedIdle.play();
+      planeRef.current.scale.set(1, 1, 1);
+      planeRef.current.position.set(
+        leftDoorHandleClosed.position.x,
+        leftDoorHandleClosed.position.y,
+        leftDoorHandleClosed.position.z
+      );
     }
   });
 
   const onDoorClick = () => {
-    setLeftDoorCloseState(false);
-    setLeftDoorOpenState(false);
     if (leftDoorClosedIdle.isRunning()) {
-      leftDoorClosedIdle.paused = true;
+      leftDoorClosedIdle.stop();
       planeRef.current.scale.set(0, 0, 0);
       leftDoorOpen.play();
-      setLeftDoorOpenState(true);
-      setLeftDoorCloseState(false);
     } else if (leftDoorOpenIdle.isRunning()) {
-      leftDoorOpenIdle.paused = true;
+      leftDoorOpenIdle.stop();
       planeRef.current.scale.set(0, 0, 0);
       leftDoorClose.play();
-      setLeftDoorOpenState(false);
-      setLeftDoorCloseState(true);
     }
   };
-
-  // const onPointerEnter = (event) => {
-  //   let interval = setInterval(() => {
-  //     planeRef.current.scale.set(
-  //       lerp(planeRef.current.scale.x, 1.2, 0.5),
-  //       lerp(planeRef.current.scale.y, 1.2, 0.5),
-  //       lerp(planeRef.current.scale.y, 1.2, 0.5)
-  //     );
-  //   }, 50);
-
-  //   setTimeout(() => {
-  //     clearInterval(interval);
-  //     planeRef.current.scale.set(1.2, 1.2, 1.2);
-  //   }, 100);
-  // };
-
-  // const onPointerLeave = (event) => {
-  //   let interval = setInterval(() => {
-  //     planeRef.current.scale.set(
-  //       lerp(planeRef.current.scale.x, 1, 0.5),
-  //       lerp(planeRef.current.scale.y, 1, 0.5),
-  //       lerp(planeRef.current.scale.y, 1, 0.5)
-  //     );
-  //   }, 50);
-
-  //   setTimeout(() => {
-  //     clearInterval(interval);
-  //     planeRef.current.scale.set(1, 1, 1);
-  //   }, 500);
-  // };
 
   useEffect(() => {
     leftDoorClosedIdle.play();
@@ -127,8 +80,6 @@ export default function Lambo() {
         ref={planeRef}
         position={leftDoorHandleClosed.position}
         onClick={onDoorClick}
-        // onPointerEnter={onPointerEnter}
-        // onPointerLeave={onPointerLeave}
       >
         <planeGeometry args={[1, 1]} />
         <meshBasicMaterial color="red" />
