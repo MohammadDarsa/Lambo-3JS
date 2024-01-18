@@ -103,7 +103,7 @@ export default function Lambo() {
         onPointerLeave={onPointerLeave}
       >
         <planeGeometry args={[0.1, 0.1]} />
-        <meshBasicMaterial transparent />
+        <meshBasicMaterial transparent map={doorPointer} />
       </mesh>
 
       {/* scene */}
