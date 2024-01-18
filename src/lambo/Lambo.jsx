@@ -31,7 +31,6 @@ export default function Lambo() {
   leftDoorOpen.setLoop(THREE.LoopOnce, 1);
 
   mixer.addEventListener("finished", function (e) {
-    console.log(e.action.getClip().name);
     if (e.action.getClip().name === "left_door_open") {
       leftDoorOpen.stop();
       leftDoorOpenIdle.play();
