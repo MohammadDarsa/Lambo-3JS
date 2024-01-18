@@ -4,9 +4,17 @@ import { useFrame, useLoader } from "@react-three/fiber";
 import { Suspense, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useAnimations } from "@react-three/drei";
 import * as THREE from "three";
-import { lerp } from "three/src/math/MathUtils";
 
 export default function Lambo() {
+  const doorPointer = useLoader(
+    THREE.TextureLoader,
+    "./textures/door_pointer.png"
+  );
+  const doorPointerHover = useLoader(
+    THREE.TextureLoader,
+    "./textures/door_pointer_hover.png"
+  );
+
   const model = useLoader(GLTFLoader, "./models/lambo.glb", (loader) => {
     const dracoLoader = new DRACOLoader();
     dracoLoader.setDecoderPath("https://www.gstatic.com/draco/v1/decoders/");
@@ -72,6 +80,18 @@ export default function Lambo() {
     planeRef.current.lookAt(state.camera.position);
   });
 
+  const onPointerEnter = (e) => {
+    const mesh = e.eventObject;
+    mesh.material.map = doorPointerHover;
+    mesh.material.needsUpdate = true;
+  };
+
+  const onPointerLeave = (e) => {
+    const mesh = e.eventObject;
+    mesh.material.map = doorPointer;
+    mesh.material.needsUpdate = true;
+  };
+
   return (
     <>
       {/* circle for the door to open */}
@@ -79,9 +99,11 @@ export default function Lambo() {
         ref={planeRef}
         position={leftDoorHandleClosed.position}
         onClick={onDoorClick}
+        onPointerEnter={onPointerEnter}
+        onPointerLeave={onPointerLeave}
       >
-        <planeGeometry args={[1, 1]} />
-        <meshBasicMaterial color="red" />
+        <planeGeometry args={[0.1, 0.1]} />
+        <meshBasicMaterial transparent />
       </mesh>
 
       {/* scene */}
